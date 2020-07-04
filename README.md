@@ -1,1 +1,1 @@
-# GoStackRocketseatDesafio02
+# GoStack Rocketseat Desafio02
