@@ -17,15 +17,36 @@ app.get("/repositories", (request, response) => {
 app.post("/repositories", (request, response) => {
   const { title, url, techs } = request.body;
 
-  const project = { id: uuid(), title, url, techs, likes: 0 };
+  const repository = { id: uuid(), title, url, techs, likes: 0 };
 
-  repositories.push(project);
+  repositories.push(repository);
 
-  response.json(project);
+  response.json(repository);
 });
 
 app.put("/repositories/:id", (request, response) => {
-  // TODO
+  const { id } = request.params;
+  const { title, url, techs } = request.body;
+
+  const repositoryIndex = repositories.findIndex(
+    ({ id: repoId }) => repoId === id
+  );
+
+  if (repositoryIndex < 0) {
+    response.status(404).json({ error: "Repository not found!" });
+  }
+
+  const repositoryInDataBase = repositories[repositoryIndex];
+
+  const repository = {
+    title,
+    url,
+    techs,
+    ...repositoryInDataBase,
+  };
+  repositories[repositoryIndex] = repository;
+
+  response.json(repository);
 });
 
 app.delete("/repositories/:id", (request, response) => {
