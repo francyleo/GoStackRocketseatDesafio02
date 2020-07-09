@@ -1,14 +1,18 @@
 const express = require("express");
 const cors = require("cors");
-
 const { uuid } = require("uuidv4");
+
+const { serverLog, validateProjetId } = require("./middleware");
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
-const repositories = [];
+let repositories = [];
+
+app.use(serverLog);
+// app.use("/repositories/:id", validateProjetId);
 
 app.get("/repositories", (request, response) => {
   const { title } = request.query;
@@ -27,16 +31,14 @@ app.post("/repositories", (request, response) => {
 
   repositories.push(repository);
 
-  return response.json(repository);
+  return response.status(201).json(repository);
 });
 
 app.put("/repositories/:id", (request, response) => {
   const { id } = request.params;
   const { title, url, techs } = request.body;
 
-  const repositoryIndex = repositories.findIndex(
-    ({ id: repoId }) => repoId === id
-  );
+  const repositoryIndex = repositories.findIndex((repo) => repo.id === id);
 
   if (repositoryIndex < 0) {
     return response.status(404).json({ error: "Repository not found!" });
@@ -70,7 +72,17 @@ app.delete("/repositories/:id", (request, response) => {
 });
 
 app.post("/repositories/:id/like", (request, response) => {
-  // TODO
+  const { id } = request.params;
+
+  const repositoryIndex = repositories.findIndex((repo) => repo.id === id);
+
+  if (repositoryIndex < 0) {
+    return response.status(400).send({ error: "Repositories not found." });
+  }
+
+  repositories[repositoryIndex].likes += 1;
+
+  return response.status(201).json(repositories[repositoryIndex]);
 });
 
 module.exports = app;
